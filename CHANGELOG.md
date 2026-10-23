@@ -6,8 +6,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Planned
+
 - MCP wrapper so agents can call `handoff` as a tool instead of a shell command.
 - `ws archive <id>` and `ws handoff --since <duration>`.
+
+### Changed
+
+- The README is now Chinese-first; the earlier English text is kept only in git
+  history (it was never a second supported document).
+- Dropped build artifacts that had been committed by accident (`*.egg-info/`,
+  `build/`) and added them to `.gitignore`.
 
 ## [0.2.0] — 2026-10-23
 
