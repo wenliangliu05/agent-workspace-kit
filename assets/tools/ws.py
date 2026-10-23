@@ -41,6 +41,8 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import NoReturn
 
+__version__ = "0.2.0"
+
 INDEX_NAME = "_index.json"
 MEMORY_NAME = "project_memory.md"
 PROJECTS_DIR = "projects"
@@ -493,11 +495,13 @@ def cmd_check(root: Path, index: dict, fix: bool) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="ws.py",
+        # `ws` when installed, `ws.py` when run from a checkout
+        prog=Path(sys.argv[0]).name,
         description="One entry point for an agent workspace: index + handoff packs.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Commands")[1] if "Commands" in (__doc__ or "") else None,
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--root", help="workspace root (default: search upwards)")
     parser.add_argument("--json", action="store_true", help="machine-readable output")
     sub = parser.add_subparsers(dest="cmd", required=True)

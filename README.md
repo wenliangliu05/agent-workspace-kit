@@ -7,9 +7,13 @@ per project — so any agent can pick up any project in one command.**
 [![CI](https://github.com/wenliangliu05/agent-workspace-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/wenliangliu05/agent-workspace-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![tests](https://img.shields.io/badge/tests-20%20passing-brightgreen)
+![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
 No service, no database, no dependencies: a JSON file, Markdown files, and one
 stdlib-only Python CLI.
+
+<img src="docs/demo.svg" alt="ws handoff demo-api — project memory, file map, and skill pointers" width="820">
 
 ---
 
@@ -31,6 +35,29 @@ The files were never the problem. **The context was.**
 | **Stable IDs** | A project is `demo-api` forever. Changing its title touches nothing else. |
 | **Persist ⇒ project** | Anything you will need again gets `projects/<id>/` and a handoff pack — not a stray file in the root. |
 | **One entry point** | `ws.py find` and `ws.py handoff`, instead of `ls` + `find` + `cat` archaeology. |
+
+## Install
+
+Nothing to compile, no dependencies to resolve.
+
+```bash
+# a command anywhere on your machine (recommended)
+pipx install git+https://github.com/wenliangliu05/agent-workspace-kit
+
+# or plain pip inside a venv
+python3 -m venv .venv
+.venv/bin/pip install git+https://github.com/wenliangliu05/agent-workspace-kit
+```
+
+You get one command:
+
+```bash
+ws init ~/my-workspace     # create a workspace
+ws handoff demo-api        # inside a workspace: what do I need to know?
+```
+
+If you would rather not install anything, clone the repo instead — it is already
+a working workspace (next section).
 
 ## Try it in 60 seconds
 
@@ -95,6 +122,9 @@ first command. It also writes an `AGENTS.md` that tells any agent to call
 | `projects/<id>/project_memory.md` | the six-section handoff pack |
 | `skills/<name>/SKILL.md` | optional skills, loaded on demand |
 | `tests/test_ws.py` | the CLI's own tests |
+| `pyproject.toml` | packaging (exposes the `ws` command) + lint policy |
+| `docs/demo.svg` | the terminal render above |
+| `CHANGELOG.md` / `CONTRIBUTING.md` | what changed, how to send a patch |
 
 ## The six sections
 
@@ -146,7 +176,11 @@ agent-workspace-kit/
 │   └── demo-cli/               # example: tooling
 │       └── project_memory.md
 ├── skills/debugging/SKILL.md   # example skill (progressive disclosure)
-└── tests/test_ws.py
+├── docs/demo.svg               # the terminal render above
+├── tests/test_ws.py            # 20 tests over the CLI
+├── pyproject.toml              # packaging + ruff policy
+├── CHANGELOG.md
+└── CONTRIBUTING.md
 ```
 
 ## Commands
@@ -162,7 +196,7 @@ agent-workspace-kit/
 | `ws.py check [--fix]` | validate index ↔ disk (repair unregistered dirs) |
 
 Global flags: `--root <dir>` (default: search upwards for `_index.json`),
-`--json` (machine-readable output for `list`, `find`, `handoff`).
+`--json` (machine-readable output for `list`, `find`, `handoff`), `--version`.
 
 Exit codes: `0` ok · `1` validation problem · `2` usage error · `3` not found.
 That makes `check` usable in CI and as a pre-commit hook.
@@ -230,8 +264,9 @@ CI runs all three on Python 3.10 / 3.11 / 3.13 and on Windows.
 
 ## Status
 
-Early but usable: the CLI is covered by `tests/test_ws.py` and CI runs the suite
-on Python 3.10–3.13. Interfaces may still change before `1.0`.
+`0.2.0` — early but usable. Installable (`ws` command), covered by 20 tests, and
+CI runs lint + tests + `check` + an end-to-end smoke test on Python 3.10–3.13 and
+Windows. Interfaces may still change before `1.0`; see [CHANGELOG.md](CHANGELOG.md).
 
 Ideas queued, not implemented (PRs welcome): `ws.py archive`, a `--since`
 filter for `handoff`, and an MCP wrapper so agents can call `handoff` as a tool

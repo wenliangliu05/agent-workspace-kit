@@ -23,6 +23,29 @@
 | **要留就立项** | 需要活过会话的东西 → `projects/<id>/` + 一份接管包，不是散落在根目录的文件 |
 | **一个入口** | `ws.py find` / `ws.py handoff`，而不是 `ls` + `find` + `cat` 考古 |
 
+## 安装
+
+没有依赖，也不需要编译。
+
+```bash
+# 装成一个命令（推荐）
+pipx install git+https://github.com/wenliangliu05/agent-workspace-kit
+
+# 或者 venv 里用 pip
+python3 -m venv .venv
+.venv/bin/pip install git+https://github.com/wenliangliu05/agent-workspace-kit
+```
+
+装好后只有一个命令：
+
+```bash
+ws init ~/my-workspace     # 建工作区
+ws handoff demo-api        # 在工作区里：动它之前我需要知道什么？
+ws --version
+```
+
+不想装也行 —— clone 本仓库即可，它本身就是一个能跑的工作区。
+
 ## 60 秒试用
 
 本仓库**本身就是一个可用工作区**（内含两个示例项目），不用安装任何东西：

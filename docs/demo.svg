@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="530" viewBox="0 0 820 530" role="img" aria-label="ws.py handoff demo-api: prints project memory, file map and skills">
+  <title>ws handoff demo-api</title>
+  <!-- Terminal mock of real output. Regenerate by editing docs/demo.svg. -->
+  <rect x="0.5" y="0.5" width="819" height="529" rx="10" fill="#0d1117" stroke="#30363d"/>
+  <rect x="0.5" y="0.5" width="819" height="34" rx="10" fill="#161b22"/>
+  <rect x="0.5" y="30" width="819" height="5" fill="#161b22"/>
+  <circle cx="24" cy="18" r="5.5" fill="#ff5f56"/>
+  <circle cx="44" cy="18" r="5.5" fill="#ffbd2e"/>
+  <circle cx="64" cy="18" r="5.5" fill="#27c93f"/>
+  <text x="410" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#8b949e" text-anchor="middle">agent-workspace-kit</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14.5" xml:space="preserve">
+    <text x="26" y="64" fill="#7ee787" xml:space="preserve">$ ws handoff demo-api</text>
+    <text x="26" y="108" fill="#79c0ff" xml:space="preserve"># handoff: demo-api</text>
+    <text x="26" y="130" fill="#8b949e" xml:space="preserve"># Order API (demo)  (active, backend)</text>
+    <text x="26" y="174" fill="#d2a8ff" xml:space="preserve">== 1. project memory ==</text>
+    <text x="26" y="196" fill="#79c0ff" xml:space="preserve">## Goal</text>
+    <text x="26" y="218" fill="#c9d1d9" xml:space="preserve">Expose a minimal order API (list / create / cancel) so the demo has</text>
+    <text x="26" y="240" fill="#c9d1d9" xml:space="preserve">something concrete to hand off.</text>
+    <text x="26" y="262" fill="#79c0ff" xml:space="preserve">## State</text>
+    <text x="26" y="284" fill="#c9d1d9" xml:space="preserve">- status: active, v0.3</text>
+    <text x="26" y="306" fill="#79c0ff" xml:space="preserve">## Gotchas</text>
+    <text x="26" y="328" fill="#c9d1d9" xml:space="preserve">- Handlers are synchronous on purpose. Do not "upgrade" to asyncio ...</text>
+    <text x="26" y="372" fill="#d2a8ff" xml:space="preserve">== 2. file map (depth 2) ==</text>
+    <text x="26" y="394" fill="#a5d6ff" xml:space="preserve">  projects/demo-api/src/</text>
+    <text x="26" y="416" fill="#a5d6ff" xml:space="preserve">  projects/demo-api/tests/</text>
+    <text x="26" y="460" fill="#d2a8ff" xml:space="preserve">== 3. skills (load on demand) ==</text>
+    <text x="26" y="482" fill="#a5d6ff" xml:space="preserve">  debugging  -&gt;  skills/debugging/SKILL.md</text>
+  </g>
+</svg>

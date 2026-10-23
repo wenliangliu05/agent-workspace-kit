@@ -1,12 +1,53 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-workspace-kit"
+version = "0.2.0"
+description = "A handoff-first workspace for AI coding agents: one JSON index, six-section handoff packs, zero dependencies."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "wenliangliu05" }]
+keywords = ["ai-agents", "context-engineering", "agents-md", "handoff", "workspace", "cli"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/wenliangliu05/agent-workspace-kit"
+Issues = "https://github.com/wenliangliu05/agent-workspace-kit/issues"
+Changelog = "https://github.com/wenliangliu05/agent-workspace-kit/blob/main/CHANGELOG.md"
+
+[project.scripts]
+ws = "ws:main"
+
+[tool.setuptools]
+# The CLI lives where agents expect to find it in a workspace checkout
+# (assets/tools/ws.py). Packaging exposes the same file as a top-level module
+# `ws` so that `pipx install` gives you a `ws` command.
+py-modules = ["ws"]
+package-dir = { "" = "assets/tools" }
+
 [tool.ruff]
-# 目标版本与 CI 矩阵一致：不要在 3.10 上用的写法，就别让 lint 建议
+# Target the CI matrix: do not suggest syntax that 3.10 cannot run.
 target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "PLW"]
 ignore = [
-    # 3.10 does not have datetime.UTC; timezone.utc is the portable spelling
+    # 3.10 has no datetime.UTC; timezone.utc is the portable spelling
     "UP017",
 ]
 
