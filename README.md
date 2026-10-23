@@ -1,8 +1,6 @@
 # agent-workspace-kit
 
-**AI agents forget everything between sessions. This kit gives them a memory
-that survives: one JSON index with stable IDs, and a six-section handoff pack
-per project — so any agent can pick up any project in one command.**
+**AI agent 换个会话就把一切忘光。这套东西给它一份能活过会话的记忆：一个 JSON 索引 + 每个项目一份六段式「接管包」——任何 agent 一条命令就能接上手。**
 
 [![CI](https://github.com/wenliangliu05/agent-workspace-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/wenliangliu05/agent-workspace-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -10,59 +8,55 @@ per project — so any agent can pick up any project in one command.**
 ![tests](https://img.shields.io/badge/tests-20%20passing-brightgreen)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
-No service, no database, no dependencies: a JSON file, Markdown files, and one
-stdlib-only Python CLI.
+不用服务、不用数据库、没有第三方依赖：一个 JSON 文件、若干 Markdown、一个只用标准库的 Python CLI。
 
-<img src="docs/demo.svg" alt="ws handoff demo-api — project memory, file map, and skill pointers" width="820">
+<img src="docs/demo.svg" alt="ws handoff demo-api：项目记忆、文件地图、skill 指针" width="820">
 
 ---
 
-## The problem
+## 问题
 
-New session, familiar conversation:
+新会话，熟悉的对话：
 
-> **You:** continue the importer we started last week.
-> **Agent:** Which project? What is the state? What did we already try?
+> **你：** 接着上周那个导入脚本做。
+> **Agent：** 哪个项目？现在什么状态？之前试过什么？
 
-So it runs `ls`, `tree`, `grep`, opens five files, re-derives a decision you
-made on Tuesday — and occasionally re-introduces the bug you fixed on Wednesday.
-The files were never the problem. **The context was.**
+于是它开始 `ls`、`tree`、`grep`，打开五个文件，把你周二已经定下的决定重新推一遍，偶尔还把你周三刚修好的 bug 再引回来一次。**文件从来不是问题，上下文才是。**
 
-## The idea
+## 思路
 
-| Principle | In practice |
+| 原则 | 落地 |
 | --- | --- |
-| **Stable IDs** | A project is `demo-api` forever. Changing its title touches nothing else. |
-| **Persist ⇒ project** | Anything you will need again gets `projects/<id>/` and a handoff pack — not a stray file in the root. |
-| **One entry point** | `ws.py find` and `ws.py handoff`, instead of `ls` + `find` + `cat` archaeology. |
+| **id 稳定** | 项目创建时拿到 `demo-api` 这样的 id，之后永不改变；改标题不牵动任何其他东西 |
+| **要留就立项** | 需要活过会话的东西 → `projects/<id>/` + 一份接管包，而不是根目录里的散文件 |
+| **一个入口** | `ws.py find` / `ws.py handoff`，取代 `ls` + `find` + `cat` 的考古 |
 
-## Install
+## 安装
 
-Nothing to compile, no dependencies to resolve.
+不用编译，也没有依赖要解析。
 
 ```bash
-# a command anywhere on your machine (recommended)
+# 装成机器上随处可用的命令（推荐）
 pipx install git+https://github.com/wenliangliu05/agent-workspace-kit
 
-# or plain pip inside a venv
+# 或者在 venv 里用 pip
 python3 -m venv .venv
 .venv/bin/pip install git+https://github.com/wenliangliu05/agent-workspace-kit
 ```
 
-You get one command:
+装好后只有一个命令：
 
 ```bash
-ws init ~/my-workspace     # create a workspace
-ws handoff demo-api        # inside a workspace: what do I need to know?
+ws init ~/my-workspace     # 建一个工作区
+ws handoff demo-api        # 在工作区里问：动它之前我需要知道什么？
+ws --version
 ```
 
-If you would rather not install anything, clone the repo instead — it is already
-a working workspace (next section).
+一点都不想装也行——直接 clone 本仓库，它本身就是一个能跑的工作区（见下一节）。
 
-## Try it in 60 seconds
+## 60 秒试用
 
-This repository **is** a working workspace (two demo projects included), so
-there is nothing to install:
+本仓库**本身就是一个可用的工作区**（内含两个示例项目），不需要安装任何东西：
 
 ```bash
 git clone https://github.com/wenliangliu05/agent-workspace-kit
@@ -70,7 +64,7 @@ cd agent-workspace-kit
 python3 assets/tools/ws.py handoff demo-api
 ```
 
-Abridged output:
+输出（节选）：
 
 ```
 # handoff: demo-api
@@ -92,186 +86,154 @@ Expose a minimal order API (list / create / cancel) ...
   debugging  ->  skills/debugging/SKILL.md
 ```
 
-That is the whole handoff: what the project is, where it stands, where to look,
-what will bite you, and what to do next.
+这就是全部接管信息：这个项目是什么、现在到哪一步、该去哪看、什么会咬人、下一步做什么。
 
-## Start your own workspace
+## 建自己的工作区
 
 ```bash
-python3 assets/tools/ws.py init ~/my-workspace --title "My workspace"
+python3 assets/tools/ws.py init ~/my-workspace --title "我的工作区"
 cd ~/my-workspace
 
-python3 assets/tools/ws.py new "Invoice importer" \
-    --type backend --stack python --tag etl
-# then fill in projects/invoice-importer/project_memory.md
+python3 assets/tools/ws.py new "发票导入器" --type backend --stack python --tag etl
+# 然后填 projects/invoice-importer/project_memory.md
 
 python3 assets/tools/ws.py handoff invoice-importer
 ```
 
-`init` copies the CLI into the new workspace, so it is self-contained from the
-first command. It also writes an `AGENTS.md` that tells any agent to call
-`handoff` before touching anything.
+`init` 会把 CLI 复制进新工作区，所以第一条命令之后它就是自包含的；同时生成一份 `AGENTS.md`，告诉任何 agent：动项目之前先跑 `handoff`。
 
-## What's in the box
+## 仓库里有什么
 
-| Path | Role |
+| 路径 | 作用 |
 | --- | --- |
-| `_index.json` | single source of truth: id, status, type, path, tags, dates |
-| `AGENTS.md` | the rules an agent must follow here — read this first |
-| `assets/tools/ws.py` | the only CLI; standard library only |
-| `projects/<id>/project_memory.md` | the six-section handoff pack |
-| `skills/<name>/SKILL.md` | optional skills, loaded on demand |
-| `tests/test_ws.py` | the CLI's own tests |
-| `pyproject.toml` | packaging (exposes the `ws` command) + lint policy |
-| `docs/demo.svg` | the terminal render above |
-| `CHANGELOG.md` / `CONTRIBUTING.md` | what changed, how to send a patch |
+| `_index.json` | 唯一事实源：id、状态、类型、路径、标签、日期 |
+| `AGENTS.md` | agent 在这个工作区必须遵守的规则——先读这个 |
+| `assets/tools/ws.py` | 唯一的 CLI，只用标准库 |
+| `projects/<id>/project_memory.md` | 六段式接管包 |
+| `skills/<名字>/SKILL.md` | 可选技能，按需加载 |
+| `tests/test_ws.py` | CLI 自己的测试 |
+| `pyproject.toml` | 打包（暴露 `ws` 命令）+ 静态检查策略 |
+| `docs/demo.svg` | 上面那张终端示意图 |
+| `CHANGELOG.md` / `CONTRIBUTING.md` | 改了什么 / 怎么提补丁 |
 
-## The six sections
+## 六段式接管包
 
 `## Goal` · `## State` · `## Key files` · `## Gotchas` · `## Skills` · `## Next steps`
 
-A fresh agent needs exactly six things: *why this exists*, *where it stands*,
-*where to look*, *what not to repeat*, *what to load*, *what to do next*.
-Anything else turns the pack into a design document — and design documents are
-the first thing to rot.
+新接手的 agent 只需要六件事：**为什么存在、现在到哪、去哪看、别重复什么、该加载什么、下一步做什么**。再多的内容就会让接管包变成设计文档——而设计文档是最先腐烂的东西。
 
-**Keep a pack under ~60 lines.** A pack nobody reads is worse than no pack.
+**一份包控制在 60 行以内。** 没人读的包，比没有包更糟。
 
-### Why a two-level file map instead of a tree
+### 为什么文件地图只到两层
 
-A full tree is noise. In the ETH Zurich study *[arXiv 2602.11988]*, architectural
-overviews and repository-structure explanations **did not** reduce the time
-agents spent locating files — extra context mostly made them explore more. What
-did help was **non-inferable information**: gotchas, rejected approaches, the
-file you must not touch. So the pack spends its budget there, and the file map
-stays at depth 2.
+完整目录树是噪音。ETH Zurich 的研究（[arXiv 2602.11988](https://arxiv.org/abs/2602.11988)）实测发现：**架构总览、仓库结构说明并不能**减少 agent 定位文件的时间，多余上下文反而让它探索更多；真正起作用的是**不可推断的信息**——踩过的坑、被否决的方案、绝对不能动的那个文件。所以预算花在 `## Gotchas`，文件地图只到两层。
 
-One study, one task family — treat it as a reason to measure your own workflow,
-not as law.
+一项研究、一类任务，把它当作"该测量自己工作流"的理由，而不是定律。
 
-## Design decisions
+## 设计取舍
 
-| Decision | Why |
+| 决定 | 原因 |
 | --- | --- |
-| JSON index, not SQLite | It must be readable and diffable in a pull request, and hand-editable in a pinch. |
-| Standard library only | The tool has to run wherever the agent runs, including a bare container with no network. |
-| Stable slug ids | Renaming a title should never break a link, a script, or a habit. |
-| Six sections, hard cap | A rigid shape is what makes a pack scannable at a glance. |
-| No `mtime` heuristics | After `git clone`, every file's mtime is the checkout time. Staleness comes from the explicit `last touched:` line. |
-| CLI, not a prompt | A tool call is cheap and deterministic; a paragraph of instructions in the system prompt is paid for on every single turn. |
+| 用 JSON 索引，不用 SQLite | 要能在 pull request 里 diff，紧急时能手改 |
+| 只用标准库 | 有 agent 的地方就要能跑，包括没有网络的裸容器 |
+| 稳定的 slug id | 改标题不该弄断链接、脚本或习惯 |
+| 六段固定、硬性上限 | 形状固定，才扫得动 |
+| 不靠 mtime 判新旧 | `git clone` 之后 mtime 全是检出时间；新旧由包里显式的 `last touched:` 决定 |
+| 做成 CLI，而不是一段提示词 | 工具输出只在调用时付一次；提示词每一轮都要付 |
 
-## Layout
+## 目录布局
 
 ```
 agent-workspace-kit/
-├── _index.json                 # SSOT: projects, status, paths, dates
-├── AGENTS.md                   # rules for agents (start here)
+├── _index.json                 # 唯一事实源：项目、状态、路径、日期
+├── AGENTS.md                   # 给 agent 的规则（从这里开始读）
 ├── README.md
 ├── LICENSE
-├── assets/tools/ws.py          # the only CLI (stdlib)
+├── assets/tools/ws.py          # 唯一的 CLI（标准库）
 ├── projects/
-│   ├── demo-api/               # example: backend service
-│   │   ├── project_memory.md   #   six-section handoff pack
+│   ├── demo-api/               # 示例：后端服务
+│   │   ├── project_memory.md   #   六段式接管包
 │   │   └── src/, tests/
-│   └── demo-cli/               # example: tooling
+│   └── demo-cli/               # 示例：命令行工具
 │       └── project_memory.md
-├── skills/debugging/SKILL.md   # example skill (progressive disclosure)
-├── docs/demo.svg               # the terminal render above
-├── tests/test_ws.py            # 20 tests over the CLI
-├── pyproject.toml              # packaging + ruff policy
+├── skills/debugging/SKILL.md   # 示例技能（渐进式披露）
+├── docs/demo.svg               # 上面的终端示意图
+├── tests/test_ws.py            # 20 项测试
+├── pyproject.toml              # 打包 + ruff 策略
 ├── CHANGELOG.md
 └── CONTRIBUTING.md
 ```
 
-## Commands
+## 命令
 
-| Command | What it does |
+| 命令 | 作用 |
 | --- | --- |
-| `ws.py init <dir>` | create a workspace skeleton (and copy the CLI into it) |
-| `ws.py new "<title>"` | create a project + pack, register it in the index |
-| `ws.py list [--status s] [--type t]` | list projects |
-| `ws.py find <keyword>` | search id / title / tags / type / path |
-| `ws.py show <id>` | index entry + the head of the pack |
-| `ws.py handoff <id>` | print the pack, the file map, and matching skills |
-| `ws.py check [--fix]` | validate index ↔ disk (repair unregistered dirs) |
+| `ws.py init <目录>` | 建工作区骨架（并把 CLI 复制进去） |
+| `ws.py new "<标题>"` | 建项目 + 接管包，登记进索引 |
+| `ws.py list [--status s] [--type t]` | 列项目 |
+| `ws.py find <关键词>` | 在 id / 标题 / 标签 / 类型 / 路径里搜 |
+| `ws.py show <id>` | 索引条目 + 接管包的开头 |
+| `ws.py handoff <id>` | 打印接管包、文件地图、匹配的 skill |
+| `ws.py check [--fix]` | 校验索引与磁盘是否一致（可自动补登记） |
 
-Global flags: `--root <dir>` (default: search upwards for `_index.json`),
-`--json` (machine-readable output for `list`, `find`, `handoff`), `--version`.
+全局参数：`--root <目录>`（默认从当前目录向上找 `_index.json`）、`--json`（`list` / `find` / `handoff` 输出机器可读格式）、`--version`。
 
-Exit codes: `0` ok · `1` validation problem · `2` usage error · `3` not found.
-That makes `check` usable in CI and as a pre-commit hook.
+退出码：`0` 正常 · `1` 校验问题 · `2` 用法错误 · `3` 找不到。所以 `check` 可以直接放进 CI 或 pre-commit 钩子。
 
-## Using it with your agent
+## 和 agent 配合
 
-Paste this into your agent's instruction file (`AGENTS.md`, `CLAUDE.md`,
-`.cursorrules`, …):
+把这段贴进 agent 的指令文件（`AGENTS.md`、`CLAUDE.md`、`.cursorrules`……）：
 
 ```text
-This workspace keeps its state in _index.json and one handoff pack per project.
+本工作区的状态在 _index.json，每个项目一份接管包。
 
-Before touching a project, run:
-    python3 assets/tools/ws.py handoff <project-id>
+动任何项目之前先跑：
+    python3 assets/tools/ws.py handoff <项目id>
 
-Before finishing, update the pack's "## State" and "## Next steps",
-and record anything that cost you more than ten minutes under "## Gotchas".
+收工前更新包里的 "## State" 和 "## Next steps"，
+把花了你十分钟以上的坑记到 "## Gotchas"。
 
-Never use ls/tree/find to discover projects — ask the index.
+不要用 ls/tree/find 找项目——去问索引。
 ```
 
-Why a CLI instead of a long prompt: tool output is paid once, on demand. Prompt
-text is paid on every turn, and every extra instruction dilutes the ones that
-matter.
+为什么做成 CLI 而不是一段长提示词：工具输出按需付一次；提示词文本每一轮都要付，而且每多一条指令，真正重要的那几条就被稀释一点。
 
-## FAQ
+## 常见问题
 
-**Does it work with Claude Code / Codex / Cursor / Cline?**
-Yes. There is nothing to integrate: it is a JSON file, Markdown files, and a
-Python CLI. `AGENTS.md` is read by most agents; point the others at it
-explicitly.
+**能配合 Claude Code / Codex / Cursor / Cline 用吗？**
+能。没有任何集成成本：它就是 JSON + Markdown + 一个 Python CLI。`AGENTS.md` 大多数 agent 会读；不读的，明确指给它。
 
-**Does it work for non-code projects?**
-Yes — that is half the point. Research, writing, ops notes: anything with state
-that outlives a session. `--type` is free-form.
+**非代码项目能用吗？**
+能，这正是它一半的价值——调研、写作、运维记录：任何"有状态、且要活过会话"的东西。`--type` 是自由文本。
 
-**Windows?**
-Plain Python 3.10+. `init.sh` is a convenience wrapper, not a requirement; call
-`python3 assets/tools/ws.py` directly.
+**Windows 行吗？**
+纯 Python 3.10+。`init.sh` 只是方便用的外壳，不是必需品；直接调 `python3 assets/tools/ws.py` 即可。
 
-**How do I add a skill?**
-Create `skills/<name>/SKILL.md` with `name` and `description` front-matter. The
-`handoff` command lists skills matching the project's `stack`/`tags` and prints
-their paths; load one only when its description matches the task.
+**怎么加技能？**
+建 `skills/<名字>/SKILL.md`，带 `name` 和 `description` 两个 front-matter 字段。`handoff` 会把与项目 `stack` / `tags` 匹配的技能列出来并给出路径；只有描述对得上当前任务时才加载。
 
-**Why not just put everything in `CLAUDE.md` / `AGENTS.md`?**
-Because that file is loaded into every turn. State per project belongs in a file
-that is read on demand — that is the same reason you do not paste your whole
-codebase into the prompt.
+**为什么不干脆把所有东西都写进 `CLAUDE.md` / `AGENTS.md`？**
+因为那个文件每一轮都会被加载。按项目分状态属于"按需读取"，和你不会把整个代码库粘进提示词是同一个道理。
 
-**Is the index going to rot?**
-`ws.py check` compares the index with the disk and reports missing paths, packs
-without the six sections, and directories that were never registered.
-`--fix` registers the stragglers. Run it in CI or a pre-commit hook.
+**索引会不会腐烂？**
+`ws.py check` 会比对索引与磁盘，报告路径缺失、接管包缺段、目录没登记；`--fix` 把漏登记的补上。放进 CI 或 pre-commit 就不会烂。
 
-## Development
+## 开发
 
 ```bash
-make check   # index <-> disk consistency (no dependencies)
-make test    # 20 unit tests over the CLI (no dependencies)
-make lint    # ruff: bugs, imports, style (pip install ruff)
+make check   # 索引与磁盘一致性（无依赖）
+make test    # 20 项 CLI 单元测试（无依赖）
+make lint    # ruff：Bug、导入、风格（需 pip install ruff）
 ```
 
-CI runs all three on Python 3.10 / 3.11 / 3.13 and on Windows.
+CI 会在 Python 3.10 / 3.11 / 3.13 和 Windows 上跑这三项，另外加一个端到端冒烟测试（`init` → `new` → `handoff` → `check`）。
 
-## Status
+## 状态
 
-`0.2.0` — early but usable. Installable (`ws` command), covered by 20 tests, and
-CI runs lint + tests + `check` + an end-to-end smoke test on Python 3.10–3.13 and
-Windows. Interfaces may still change before `1.0`; see [CHANGELOG.md](CHANGELOG.md).
+`0.2.0`——能用，但还早。可安装（`ws` 命令）、20 项测试、CI 覆盖 lint + 测试 + `check` + 冒烟测试，Python 3.10–3.13 与 Windows 全绿。`1.0` 之前接口仍可能变，改动见 [CHANGELOG.md](CHANGELOG.md)。
 
-Ideas queued, not implemented (PRs welcome): `ws.py archive`, a `--since`
-filter for `handoff`, and an MCP wrapper so agents can call `handoff` as a tool
-instead of a shell command.
+排队中、尚未实现的想法（欢迎 PR）：`ws.py archive`、`handoff` 的 `--since` 过滤、以及一层 MCP 包装，让 agent 把 `handoff` 当工具调用而不是敲 shell。
 
-## License
+## 许可
 
 [MIT](LICENSE)
