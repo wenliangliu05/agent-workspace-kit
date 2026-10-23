@@ -1,0 +1,232 @@
+# agent-workspace-kit
+
+**AI agents forget everything between sessions. This kit gives them a memory
+that survives: one JSON index with stable IDs, and a six-section handoff pack
+per project — so any agent can pick up any project in one command.**
+
+[![CI](https://github.com/wenliangliu05/agent-workspace-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/wenliangliu05/agent-workspace-kit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+
+No service, no database, no dependencies: a JSON file, Markdown files, and one
+stdlib-only Python CLI.
+
+---
+
+## The problem
+
+New session, familiar conversation:
+
+> **You:** continue the importer we started last week.
+> **Agent:** Which project? What is the state? What did we already try?
+
+So it runs `ls`, `tree`, `grep`, opens five files, re-derives a decision you
+made on Tuesday — and occasionally re-introduces the bug you fixed on Wednesday.
+The files were never the problem. **The context was.**
+
+## The idea
+
+| Principle | In practice |
+| --- | --- |
+| **Stable IDs** | A project is `demo-api` forever. Changing its title touches nothing else. |
+| **Persist ⇒ project** | Anything you will need again gets `projects/<id>/` and a handoff pack — not a stray file in the root. |
+| **One entry point** | `ws.py find` and `ws.py handoff`, instead of `ls` + `find` + `cat` archaeology. |
+
+## Try it in 60 seconds
+
+This repository **is** a working workspace (two demo projects included), so
+there is nothing to install:
+
+```bash
+git clone https://github.com/wenliangliu05/agent-workspace-kit
+cd agent-workspace-kit
+python3 assets/tools/ws.py handoff demo-api
+```
+
+Abridged output:
+
+```
+# handoff: demo-api
+# Order API (demo)  (active, backend)
+
+== 1. project memory ==
+## Goal
+Expose a minimal order API (list / create / cancel) ...
+## State
+- status: active, v0.3
+## Gotchas
+- Handlers are synchronous on purpose. Do not "upgrade" to asyncio ...
+
+== 2. file map (depth 2) ==
+  projects/demo-api/src/
+  projects/demo-api/tests/
+
+== 3. skills (load on demand) ==
+  debugging  ->  skills/debugging/SKILL.md
+```
+
+That is the whole handoff: what the project is, where it stands, where to look,
+what will bite you, and what to do next.
+
+## Start your own workspace
+
+```bash
+python3 assets/tools/ws.py init ~/my-workspace --title "My workspace"
+cd ~/my-workspace
+
+python3 assets/tools/ws.py new "Invoice importer" \
+    --type backend --stack python --tag etl
+# then fill in projects/invoice-importer/project_memory.md
+
+python3 assets/tools/ws.py handoff invoice-importer
+```
+
+`init` copies the CLI into the new workspace, so it is self-contained from the
+first command. It also writes an `AGENTS.md` that tells any agent to call
+`handoff` before touching anything.
+
+## What's in the box
+
+| Path | Role |
+| --- | --- |
+| `_index.json` | single source of truth: id, status, type, path, tags, dates |
+| `AGENTS.md` | the rules an agent must follow here — read this first |
+| `assets/tools/ws.py` | the only CLI; standard library only |
+| `projects/<id>/project_memory.md` | the six-section handoff pack |
+| `skills/<name>/SKILL.md` | optional skills, loaded on demand |
+| `tests/test_ws.py` | the CLI's own tests |
+
+## The six sections
+
+`## Goal` · `## State` · `## Key files` · `## Gotchas` · `## Skills` · `## Next steps`
+
+A fresh agent needs exactly six things: *why this exists*, *where it stands*,
+*where to look*, *what not to repeat*, *what to load*, *what to do next*.
+Anything else turns the pack into a design document — and design documents are
+the first thing to rot.
+
+**Keep a pack under ~60 lines.** A pack nobody reads is worse than no pack.
+
+### Why a two-level file map instead of a tree
+
+A full tree is noise. In the ETH Zurich study *[arXiv 2602.11988]*, architectural
+overviews and repository-structure explanations **did not** reduce the time
+agents spent locating files — extra context mostly made them explore more. What
+did help was **non-inferable information**: gotchas, rejected approaches, the
+file you must not touch. So the pack spends its budget there, and the file map
+stays at depth 2.
+
+One study, one task family — treat it as a reason to measure your own workflow,
+not as law.
+
+## Design decisions
+
+| Decision | Why |
+| --- | --- |
+| JSON index, not SQLite | It must be readable and diffable in a pull request, and hand-editable in a pinch. |
+| Standard library only | The tool has to run wherever the agent runs, including a bare container with no network. |
+| Stable slug ids | Renaming a title should never break a link, a script, or a habit. |
+| Six sections, hard cap | A rigid shape is what makes a pack scannable at a glance. |
+| No `mtime` heuristics | After `git clone`, every file's mtime is the checkout time. Staleness comes from the explicit `last touched:` line. |
+| CLI, not a prompt | A tool call is cheap and deterministic; a paragraph of instructions in the system prompt is paid for on every single turn. |
+
+## Layout
+
+```
+agent-workspace-kit/
+├── _index.json                 # SSOT: projects, status, paths, dates
+├── AGENTS.md                   # rules for agents (start here)
+├── README.md
+├── LICENSE
+├── assets/tools/ws.py          # the only CLI (stdlib)
+├── projects/
+│   ├── demo-api/               # example: backend service
+│   │   ├── project_memory.md   #   six-section handoff pack
+│   │   └── src/, tests/
+│   └── demo-cli/               # example: tooling
+│       └── project_memory.md
+├── skills/debugging/SKILL.md   # example skill (progressive disclosure)
+└── tests/test_ws.py
+```
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `ws.py init <dir>` | create a workspace skeleton (and copy the CLI into it) |
+| `ws.py new "<title>"` | create a project + pack, register it in the index |
+| `ws.py list [--status s] [--type t]` | list projects |
+| `ws.py find <keyword>` | search id / title / tags / type / path |
+| `ws.py show <id>` | index entry + the head of the pack |
+| `ws.py handoff <id>` | print the pack, the file map, and matching skills |
+| `ws.py check [--fix]` | validate index ↔ disk (repair unregistered dirs) |
+
+Global flags: `--root <dir>` (default: search upwards for `_index.json`),
+`--json` (machine-readable output for `list`, `find`, `handoff`).
+
+Exit codes: `0` ok · `1` validation problem · `2` usage error · `3` not found.
+That makes `check` usable in CI and as a pre-commit hook.
+
+## Using it with your agent
+
+Paste this into your agent's instruction file (`AGENTS.md`, `CLAUDE.md`,
+`.cursorrules`, …):
+
+```text
+This workspace keeps its state in _index.json and one handoff pack per project.
+
+Before touching a project, run:
+    python3 assets/tools/ws.py handoff <project-id>
+
+Before finishing, update the pack's "## State" and "## Next steps",
+and record anything that cost you more than ten minutes under "## Gotchas".
+
+Never use ls/tree/find to discover projects — ask the index.
+```
+
+Why a CLI instead of a long prompt: tool output is paid once, on demand. Prompt
+text is paid on every turn, and every extra instruction dilutes the ones that
+matter.
+
+## FAQ
+
+**Does it work with Claude Code / Codex / Cursor / Cline?**
+Yes. There is nothing to integrate: it is a JSON file, Markdown files, and a
+Python CLI. `AGENTS.md` is read by most agents; point the others at it
+explicitly.
+
+**Does it work for non-code projects?**
+Yes — that is half the point. Research, writing, ops notes: anything with state
+that outlives a session. `--type` is free-form.
+
+**Windows?**
+Plain Python 3.10+. `init.sh` is a convenience wrapper, not a requirement; call
+`python3 assets/tools/ws.py` directly.
+
+**How do I add a skill?**
+Create `skills/<name>/SKILL.md` with `name` and `description` front-matter. The
+`handoff` command lists skills matching the project's `stack`/`tags` and prints
+their paths; load one only when its description matches the task.
+
+**Why not just put everything in `CLAUDE.md` / `AGENTS.md`?**
+Because that file is loaded into every turn. State per project belongs in a file
+that is read on demand — that is the same reason you do not paste your whole
+codebase into the prompt.
+
+**Is the index going to rot?**
+`ws.py check` compares the index with the disk and reports missing paths, packs
+without the six sections, and directories that were never registered.
+`--fix` registers the stragglers. Run it in CI or a pre-commit hook.
+
+## Status
+
+Early but usable: the CLI is covered by `tests/test_ws.py` and CI runs the suite
+on Python 3.10–3.13. Interfaces may still change before `1.0`.
+
+Ideas queued, not implemented (PRs welcome): `ws.py archive`, a `--since`
+filter for `handoff`, and an MCP wrapper so agents can call `handoff` as a tool
+instead of a shell command.
+
+## License
+
+[MIT](LICENSE)

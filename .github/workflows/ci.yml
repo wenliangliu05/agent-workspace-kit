@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: python ${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.13"]
+        include:
+          - os: windows-latest
+            python: "3.12"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Show the interpreter
+        run: python --version
+
+      - name: Run the test suite
+        run: python -m unittest discover -s tests -v
+
+      - name: Self-check the shipped workspace
+        run: python assets/tools/ws.py check
+
+      - name: End-to-end smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          workspace="${{ runner.temp }}/ws-smoke"
+          rm -rf "$workspace"
+          python assets/tools/ws.py init "$workspace" --title "CI smoke"
+          cd "$workspace"
+          python assets/tools/ws.py new "Smoke project" --type backend --stack python
+          python assets/tools/ws.py handoff smoke-project | head -5
+          python assets/tools/ws.py check

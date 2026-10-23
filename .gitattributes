@@ -1,0 +1,14 @@
+# One line-ending policy for every platform: LF in the repository.
+# Windows checkouts still work; editors and Python do not care.
+* text=auto eol=lf
+
+*.py    text diff=python
+*.md    text
+*.json  text
+*.yml   text
+*.sh    text eol=lf
+
+# Binary-ish assets, if you ever add them
+*.png   binary
+*.jpg   binary
+*.pdf   binary

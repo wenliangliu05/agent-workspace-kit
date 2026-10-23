@@ -1,0 +1,43 @@
+{
+  "projects": {
+    "demo-api": {
+      "created": "2026-10-01",
+      "id": "demo-api",
+      "memory": "projects/demo-api/project_memory.md",
+      "path": "projects/demo-api",
+      "stack": [
+        "python",
+        "sqlite"
+      ],
+      "status": "active",
+      "tags": [
+        "demo",
+        "http",
+        "crud"
+      ],
+      "title": "Order API (demo)",
+      "type": "backend",
+      "updated": "2026-10-20"
+    },
+    "demo-cli": {
+      "created": "2026-09-12",
+      "id": "demo-cli",
+      "memory": "projects/demo-cli/project_memory.md",
+      "path": "projects/demo-cli",
+      "stack": [
+        "python"
+      ],
+      "status": "paused",
+      "tags": [
+        "demo",
+        "logs",
+        "cli"
+      ],
+      "title": "Log triage CLI (demo)",
+      "type": "tooling",
+      "updated": "2026-10-05"
+    }
+  },
+  "schema_version": 1,
+  "updated_at": "2026-10-23T00:00:00+00:00"
+}
