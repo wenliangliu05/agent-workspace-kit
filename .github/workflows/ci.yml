@@ -31,6 +31,11 @@ jobs:
       - name: Show the interpreter
         run: python --version
 
+      - name: Lint (ruff)
+        run: |
+          python -m pip install --quiet ruff
+          python -m ruff check .
+
       - name: Run the test suite
         run: python -m unittest discover -s tests -v
 

@@ -21,7 +21,7 @@ def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
     """Invoke the CLI the way an agent would: a real subprocess in a directory."""
     return subprocess.run(
         [sys.executable, str(CLI), *args],
-        cwd=str(cwd or REPO), capture_output=True, text=True,
+        check=False, cwd=str(cwd or REPO), capture_output=True, text=True,
     )
 
 

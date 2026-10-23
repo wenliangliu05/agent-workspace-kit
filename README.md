@@ -218,6 +218,16 @@ codebase into the prompt.
 without the six sections, and directories that were never registered.
 `--fix` registers the stragglers. Run it in CI or a pre-commit hook.
 
+## Development
+
+```bash
+make check   # index <-> disk consistency (no dependencies)
+make test    # 20 unit tests over the CLI (no dependencies)
+make lint    # ruff: bugs, imports, style (pip install ruff)
+```
+
+CI runs all three on Python 3.10 / 3.11 / 3.13 and on Windows.
+
 ## Status
 
 Early but usable: the CLI is covered by `tests/test_ws.py` and CI runs the suite

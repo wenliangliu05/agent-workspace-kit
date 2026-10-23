@@ -80,6 +80,7 @@ task - that is the whole point of keeping them out of the prompt.
 ## Checking your work
 
 ```bash
-python3 assets/tools/ws.py check        # index <-> disk consistency
-python3 -m unittest discover -s tests   # the CLI's own tests
+python3 assets/tools/ws.py check   # index <-> disk consistency
+make lint                          # ruff (if installed)
+make test                          # the CLI's own tests
 ```

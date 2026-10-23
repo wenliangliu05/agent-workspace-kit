@@ -39,6 +39,7 @@ import sys
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
+from typing import NoReturn
 
 INDEX_NAME = "_index.json"
 MEMORY_NAME = "project_memory.md"
@@ -98,7 +99,7 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-def fail(message: str, code: int = 2) -> "NoReturn":  # type: ignore[name-defined]
+def fail(message: str, code: int = 2) -> NoReturn:
     print(f"error: {message}", file=sys.stderr)
     raise SystemExit(code)
 
@@ -175,7 +176,8 @@ def read_memory(root: Path, entry: dict) -> Pack:
         return Pack(entry["id"], None, list(SECTIONS))
     text = path.read_text(encoding="utf-8")
     missing = [name for name in SECTIONS
-               if not re.search(rf"^##\s+{re.escape(name)}\s*$", text, re.M | re.I)]
+               if not re.search(rf"^##\s+{re.escape(name)}\s*$", text,
+                                re.MULTILINE | re.IGNORECASE)]
     return Pack(entry["id"], path, missing)
 
 
